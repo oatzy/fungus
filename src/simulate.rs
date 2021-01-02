@@ -13,8 +13,8 @@ use super::{
 };
 
 pub struct Config {
-    deposit: f64,
-    diffuse: f64,
+    pub deposit: f64,
+    pub diffuse: f64,
 }
 
 impl Default for Config {

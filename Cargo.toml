@@ -8,5 +8,6 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1.0.36"
+argh = "0.1.4"
 image = "0.23.8"
 rand = "0.7.3"

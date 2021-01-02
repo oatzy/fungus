@@ -1,20 +1,49 @@
 use anyhow::Result;
+use argh::FromArgs;
 
-use fungus::Fungus;
+use fungus::{Config, Fungus};
+
+#[derive(FromArgs)]
+/// Fungus simulation
+struct Args {
+    /// image width
+    #[argh(option, default = "100")]
+    width: usize,
+
+    /// image height
+    #[argh(option, default = "100")]
+    height: usize,
+
+    /// number of iterations to run
+    #[argh(option, default = "1000")]
+    iterations: usize,
+
+    /// spore count
+    #[argh(option, default = "2000")]
+    spores: usize,
+
+    /// how much to deposit at each step
+    #[argh(option, default = "100.0")]
+    deposit: f64,
+
+    #[argh(option, default = "0.25")]
+    /// diffusion rate
+    diffuse: f64,
+}
 
 fn main() -> Result<()> {
-    let width = 100;
-    let height = 100;
+    let args: Args = argh::from_env();
 
-    let spore_count = 2000;
+    let config = Config {
+        deposit: args.deposit,
+        diffuse: args.diffuse,
+    };
 
-    let mut fungus = Fungus::new(width, height);
-    fungus.add_random_spores(spore_count);
+    let mut fungus = Fungus::new(args.width, args.height).with_config(config);
+    fungus.add_random_spores(args.spores);
 
     // run the simulation
-    let iterations = 1000;
-
-    for i in 0..iterations {
+    for i in 0..args.iterations {
         fungus.iterate();
 
         if i % 100 == 0 {
