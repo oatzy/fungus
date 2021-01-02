@@ -19,8 +19,7 @@ fn main() -> Result<()> {
 
         if i % 100 == 0 {
             println!("{}", i);
-            // let imgbuf: image::RgbImage = fungus.world.clone().into();
-            // imgbuf.save(format!("output/fungus-{}.png", i)).unwrap();
+            fungus.save_image(format!("output/fungus-{}.png", i))?;
         }
     }
 
