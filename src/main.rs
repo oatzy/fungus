@@ -29,14 +29,25 @@ struct Args {
     #[argh(option, default = "0.25")]
     /// diffusion rate
     diffuse: f64,
+
+    #[argh(option)]
+    /// whether pheromone should spread out as it diffuses
+    spread: bool,
+
+    #[argh(option)]
+    /// generate images every nth iteration
+    every: Option<usize>,
 }
 
 fn main() -> Result<()> {
     let args: Args = argh::from_env();
 
+    assert!(args.diffuse <= 1.0);
+
     let config = Config {
         deposit: args.deposit,
         diffuse: args.diffuse,
+        spread: args.spread,
     };
 
     let mut fungus = Fungus::new(args.width, args.height).with_config(config);
@@ -46,7 +57,7 @@ fn main() -> Result<()> {
     for i in 0..args.iterations {
         fungus.iterate();
 
-        if i % 100 == 0 {
+        if args.every.map(|e| i % e == 0).unwrap_or(false) {
             println!("{}", i);
             fungus.save_image(format!("output/fungus-{}.png", i))?;
         }

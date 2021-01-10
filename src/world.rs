@@ -36,10 +36,33 @@ impl World {
         }
     }
 
-    pub fn defuse_pheromone(&mut self, factor: f64) {
+    pub fn diffuse_pheromone(&mut self, factor: f64) {
         for cell in self.buffer.iter_mut() {
             cell.pheromone *= factor;
         }
+    }
+
+    pub fn diffuse_and_spread(&mut self, factor: f64) {
+        // TODO: diffuse further?
+        let mut diffused: Vec<Cell> = vec![Default::default(); self.width * self.height];
+
+        for (pos, cell) in self.buffer.iter_mut().enumerate() {
+            let share = cell.pheromone * (1_f64 - factor) / 8_f64; // 8 neighbours
+
+            cell.pheromone *= factor;
+
+            let (x, y) = (pos % self.width, pos / self.width);
+            for (dx, dy) in neighbours() {
+                let p: (usize, usize) = (
+                    (x as isize + dx).rem_euclid(self.width as _) as _,
+                    (y as isize + dy).rem_euclid(self.height as _) as _,
+                );
+                let n = p.0 + p.1 * self.width;
+                diffused.get_mut(n).unwrap().pheromone += share;
+            }
+        }
+
+        self.buffer = diffused;
     }
 
     fn max(&self) -> f64 {
@@ -65,9 +88,9 @@ impl Into<image::RgbImage> for World {
     }
 }
 
-// fn neighbours() -> impl Iterator<Item = (isize, isize)> {
-//     (-1..=1)
-//         .map(|dx| (-1..=1).map(move |dy| (dx, dy)))
-//         .flatten()
-//         .filter(|d| d != &(0, 0))
-// }
+fn neighbours() -> impl Iterator<Item = (isize, isize)> {
+    (-1..=1)
+        .map(|dx| (-1..=1).map(move |dy| (dx, dy)))
+        .flatten()
+        .filter(|d| d != &(0, 0))
+}

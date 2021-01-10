@@ -15,6 +15,7 @@ use super::{
 pub struct Config {
     pub deposit: f64,
     pub diffuse: f64,
+    pub spread: bool,
 }
 
 impl Default for Config {
@@ -22,6 +23,7 @@ impl Default for Config {
         Self {
             deposit: 100 as _,
             diffuse: 0.25,
+            spread: false,
         }
     }
 }
@@ -67,14 +69,18 @@ impl Fungus {
             self.world
                 .deposit_pheromone(&spore.position, self.config.deposit);
             let next = choose_move(&vec![
-                look_ahead(&spore, &self.world),
-                look_left(&spore, &self.world),
-                look_right(&spore, &self.world),
+                look(spore.direction, &spore, &self.world),
+                look(spore.direction.left(), &spore, &self.world),
+                look(spore.direction.right(), &spore, &self.world),
             ]);
             spore.move_to(next.position);
             spore.turn(next.direction);
         }
-        self.world.defuse_pheromone(self.config.diffuse);
+        if self.config.spread {
+            self.world.diffuse_and_spread(self.config.diffuse);
+        } else {
+            self.world.diffuse_pheromone(self.config.diffuse);
+        }
     }
 
     pub fn save_image<P: AsRef<Path>>(&self, path: P) -> Result<()> {
@@ -100,49 +106,7 @@ struct Move {
     pheromone: f64,
 }
 
-fn look_ahead(spore: &Spore, world: &World) -> Move {
-    let delta: (isize, isize) = spore.direction.into();
-    let position = (
-        (spore.position.0 as isize + delta.0).rem_euclid(world.width as _) as _,
-        (spore.position.1 as isize + delta.1).rem_euclid(world.height as _) as _,
-    );
-
-    let pheromone = if spore.history.contains(&position) {
-        0.0
-    } else {
-        world.get_pheromone(&position).unwrap()
-    };
-
-    Move {
-        position,
-        direction: spore.direction,
-        pheromone,
-    }
-}
-
-fn look_left(spore: &Spore, world: &World) -> Move {
-    let direction = spore.direction.left();
-    let delta: (isize, isize) = direction.into();
-    let position = (
-        (spore.position.0 as isize + delta.0).rem_euclid(world.width as _) as _,
-        (spore.position.1 as isize + delta.1).rem_euclid(world.height as _) as _,
-    );
-
-    let pheromone = if spore.history.contains(&position) {
-        0.0
-    } else {
-        world.get_pheromone(&position).unwrap()
-    };
-
-    Move {
-        position,
-        direction,
-        pheromone,
-    }
-}
-
-fn look_right(spore: &Spore, world: &World) -> Move {
-    let direction = spore.direction.right();
+fn look(direction: Direction, spore: &Spore, world: &World) -> Move {
     let delta: (isize, isize) = direction.into();
     let position = (
         (spore.position.0 as isize + delta.0).rem_euclid(world.width as _) as _,
