@@ -81,8 +81,12 @@ impl<T: PartialEq> History<T> {
     }
 
     fn push(&mut self, value: T) {
+        if self.size == 0 {
+            // special case: no memory
+            return;
+        }
         if self.history.len() == self.size {
-            // only keep the 6 most recent
+            // only keep the N most recent
             self.history.pop_front();
         }
         self.history.push_back(value);
@@ -110,6 +114,14 @@ impl Default for Spore {
 }
 
 impl Spore {
+    pub fn with_memory(size: usize) -> Self {
+        Self {
+            position: (0, 0),
+            direction: Direction::S,
+            history: History::with_size(size),
+        }
+    }
+
     pub fn move_to(&mut self, position: (usize, usize)) {
         self.history.push(self.position);
         self.position = position;

@@ -30,9 +30,13 @@ struct Args {
     /// diffusion rate
     diffuse: f64,
 
-    #[argh(option)]
+    #[argh(switch)]
     /// whether pheromone should spread out as it diffuses
     spread: bool,
+
+    #[argh(option)]
+    /// how many steps a spore remembers
+    memory: Option<usize>,
 
     #[argh(option)]
     /// generate images every nth iteration
@@ -51,7 +55,7 @@ fn main() -> Result<()> {
     };
 
     let mut fungus = Fungus::new(args.width, args.height).with_config(config);
-    fungus.add_random_spores(args.spores);
+    fungus.add_random_spores(args.spores, args.memory);
 
     // run the simulation
     for i in 0..args.iterations {

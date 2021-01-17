@@ -52,11 +52,11 @@ impl Fungus {
         self.spores.push(spore);
     }
 
-    pub fn add_random_spores(&mut self, count: usize) {
+    pub fn add_random_spores(&mut self, count: usize, memory: Option<usize>) {
         let mut rng = thread_rng();
 
         for pos in random_positions(self.world.width, self.world.height).take(count) {
-            let mut spore: Spore = Default::default();
+            let mut spore: Spore = memory.map(|s| Spore::with_memory(s)).unwrap_or_default();
             spore.position = pos;
             spore.direction = rng.gen_range::<usize, _, _>(0, 8).try_into().unwrap();
 

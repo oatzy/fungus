@@ -46,10 +46,10 @@ impl World {
         // TODO: diffuse further?
         let mut diffused: Vec<Cell> = vec![Default::default(); self.width * self.height];
 
-        for (pos, cell) in self.buffer.iter_mut().enumerate() {
-            let share = cell.pheromone * (1_f64 - factor) / 8_f64; // 8 neighbours
+        for (pos, cell) in self.buffer.iter().enumerate() {
+            let share = cell.pheromone * (1.0 - factor) / 8.0; // 8 neighbours
 
-            cell.pheromone *= factor;
+            diffused.get_mut(pos).unwrap().pheromone = cell.pheromone * factor;
 
             let (x, y) = (pos % self.width, pos / self.width);
             for (dx, dy) in neighbours() {
