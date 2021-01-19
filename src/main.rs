@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use argh::FromArgs;
+use log::debug;
 
 use fungus::{Config, Fungus};
 
@@ -50,6 +51,8 @@ struct Args {
 }
 
 fn main() -> Result<()> {
+    env_logger::init();
+
     let args: Args = argh::from_env();
 
     let output = args.output.unwrap_or("output".into());
@@ -70,7 +73,7 @@ fn main() -> Result<()> {
         fungus.iterate();
 
         if args.every.map(|e| i % e == 0).unwrap_or(false) {
-            println!("{}", i);
+            debug!("{}", i);
             fungus.save_image(output.join(format!("fungus-{}.png", i)))?;
         }
     }

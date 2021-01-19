@@ -9,5 +9,7 @@ edition = "2018"
 [dependencies]
 anyhow = "1.0.36"
 argh = "0.1.4"
+env_logger = "0.8.2"
 image = "0.23.8"
+log = "0.4.11"
 rand = "0.7.3"
