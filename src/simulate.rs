@@ -1,7 +1,9 @@
 use std::convert::TryInto;
+use std::fmt::Debug;
 use std::path::Path;
 
 use anyhow::Result;
+use log::info;
 
 use rand::distributions::Uniform;
 use rand::seq::SliceRandom;
@@ -83,7 +85,8 @@ impl Fungus {
         }
     }
 
-    pub fn save_image<P: AsRef<Path>>(&self, path: P) -> Result<()> {
+    pub fn save_image<P: AsRef<Path> + Debug>(&self, path: P) -> Result<()> {
+        info!("writing image to {:?}", path);
         let imgbuf: image::RgbImage = self.world.clone().into();
         imgbuf.save(path)?;
         Ok(())

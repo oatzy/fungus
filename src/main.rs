@@ -9,44 +9,44 @@ use fungus::{Config, Fungus};
 #[derive(FromArgs)]
 /// Fungus simulation
 struct Args {
-    /// image width
+    /// image width (default=100)
     #[argh(option, short = 'W', default = "100")]
     width: usize,
 
-    /// image height
+    /// image height (default=100)
     #[argh(option, short = 'H', default = "100")]
     height: usize,
 
-    /// number of iterations to run
+    /// number of iterations to run (default=1000)
     #[argh(option, short = 'T', default = "1000")]
     iterations: usize,
 
-    /// spore count
+    /// spore count (default=2000)
     #[argh(option, short = 's', default = "2000")]
     spores: usize,
 
-    /// how much pheromone to deposit at each step
+    /// how much pheromone to deposit at each step (default=100)
     #[argh(option, default = "100.0")]
     deposit: f64,
 
+    /// diffusion rate (default=0.75)
     #[argh(option, default = "0.75")]
-    /// diffusion rate
     diffuse: f64,
 
-    #[argh(switch)]
     /// whether pheromone should spread out as it diffuses
+    #[argh(switch)]
     spread: bool,
 
+    /// how many steps a spore remembers (default=6)
     #[argh(option)]
-    /// how many steps a spore remembers
     memory: Option<usize>,
 
-    #[argh(option)]
     /// generate images every nth iteration
+    #[argh(option)]
     every: Option<usize>,
 
+    /// directory to save image to (default="./output/")
     #[argh(option, short = 'o')]
-    /// directory to save image to
     output: Option<PathBuf>,
 }
 
@@ -70,10 +70,10 @@ fn main() -> Result<()> {
 
     // run the simulation
     for i in 0..args.iterations {
+        debug!("step {}", i);
         fungus.iterate();
 
         if args.every.map(|e| i % e == 0).unwrap_or(false) {
-            debug!("{}", i);
             fungus.save_image(output.join(format!("fungus-{}.png", i)))?;
         }
     }
